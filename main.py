@@ -1,4 +1,5 @@
 import os.path
+import numpy as np
 import tensorflow as tf
 import helper
 import warnings
@@ -36,13 +37,13 @@ def load_vgg(sess, vgg_path):
 
     tf.saved_model.loader.load(sess, [vgg_tag], vgg_path)
     graph = tf.get_default_graph()
-    w1 = graph.get_tensor_by_name(vgg_input_tensor_name)
+    input_image = graph.get_tensor_by_name(vgg_input_tensor_name)
     keep = graph.get_tensor_by_name(vgg_keep_prob_tensor_name)
     layer3 = graph.get_tensor_by_name(vgg_layer3_out_tensor_name)
     layer4 = graph.get_tensor_by_name(vgg_layer4_out_tensor_name)
     layer7 = graph.get_tensor_by_name(vgg_layer7_out_tensor_name)
 
-    return w1, keep, layer3, layer4, layer7
+    return input_image, keep, layer3, layer4, layer7
 tests.test_load_vgg(load_vgg, tf)
 
 
@@ -60,7 +61,7 @@ def layers(vgg_layer3_out, vgg_layer4_out, vgg_layer7_out, num_classes):
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
     output = tf.layers.conv2d_transpose(conv_1x1, num_classes, 4, 2, padding='same',
                                         kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
-    tf.Print(output, [tf.shape(output)])
+    # tf.Print(output, [tf.shape(output)])
 
     conv_1x1 = tf.layers.conv2d(vgg_layer4_out, num_classes, 1, padding='same',
                                 kernel_regularizer=tf.contrib.layers.l2_regularizer(1e-3))
@@ -114,11 +115,16 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param learning_rate: TF Placeholder for learning rate
     """
     # TODO: Implement function
+    start_learning_rate = 0.01
+    decay_steps = 30
+    decay_rate = 0.5
+
     total_i = 0
     for epoch in range(epochs):
         loss_all = 0
         n = 0
         for image, label in get_batches_fn(batch_size):
+            lr = start_learning_rate * np.power(decay_rate, float(n)/decay_steps)
             feed_dict = {input_image: image, correct_label: label, keep_prob: 0.8, learning_rate: 0.001}
             loss,_ = sess.run([cross_entropy_loss, train_op], feed_dict=feed_dict)
             loss_all += loss
@@ -164,11 +170,14 @@ def run():
 
         logits, train_op, loss = optimize(layer_output, correct_label, learning_rate, num_classes)
 
+        # global initializer
+        sess.run(tf.global_variables_initializer())
+
         # TODO: Train NN using the train_nn function
         train_nn(sess, epochs, batch_size, get_batches_fn, train_op, loss, input_image,
                  correct_label, keep_prob, learning_rate)
         # TODO: Save inference data using helper.save_inference_samples
-        #  helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
+        helper.save_inference_samples(runs_dir, data_dir, sess, image_shape, logits, keep_prob, input_image)
 
         # OPTIONAL: Apply the trained model to a video
 

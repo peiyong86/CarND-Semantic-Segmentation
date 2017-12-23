@@ -114,9 +114,9 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param learning_rate: TF Placeholder for learning rate
     """
     # TODO: Implement function
-    start_learning_rate = 0.01
+    start_learning_rate = 0.1
     decay_steps = 30
-    decay_rate = 0.5
+    decay_rate = 0.96
 
     total_i = 0
     for epoch in range(epochs):

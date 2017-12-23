@@ -98,6 +98,8 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     return logits, train_op, loss
 tests.test_optimize(optimize)
 
+def normalize(data):
+    return (data - 128.)/ 128.
 
 def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_loss, input_image,
              correct_label, keep_prob, learning_rate):
@@ -124,6 +126,7 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
         loss_all = 0
         n = 0
         for image, label in get_batches_fn(batch_size):
+            image = normalize(image)
             lr = start_learning_rate * np.power(decay_rate, float(n)/decay_steps)
             feed_dict = {input_image: image, correct_label: label, keep_prob: 0.8, learning_rate: 0.001}
             loss,_ = sess.run([cross_entropy_loss, train_op], feed_dict=feed_dict)

@@ -22,23 +22,23 @@ else:
 
 def jitter(im):
     # rescale
-    scale = np.random.rand() * 0.1 + 0.9
-    im2 = scipy.ndimage.interpolation.zoom(im, (scale, scale, 1.0))
-    if im2.shape[0] > 32:
-        mid = im2.shape[0] / 2
-        im2 = im2[mid - 16:mid + 16, mid - 16:mid + 16, :]
-    elif im2.shape[0] < 32:
-        diffwidth = 32 - im2.shape[0]
-        diffwidth_ = int(diffwidth / 2)
-        if diffwidth % 2 == 0:
-            padwidth = ((diffwidth_, diffwidth_), (diffwidth_, diffwidth_), (0, 0))
-        else:
-            padwidth = ((diffwidth_, diffwidth_ + 1), (diffwidth_, diffwidth_ + 1), (0, 0))
-        im2 = np.lib.pad(im2, padwidth, 'constant', constant_values=(0, 0))
+    # scale = np.random.rand() * 0.1 + 0.9
+    # im2 = scipy.ndimage.interpolation.zoom(im, (scale, scale, 1.0))
+    # if im2.shape[0] > 32:
+    #     mid = im2.shape[0] / 2
+    #     im2 = im2[mid - 16:mid + 16, mid - 16:mid + 16, :]
+    # elif im2.shape[0] < 32:
+    #     diffwidth = 32 - im2.shape[0]
+    #     diffwidth_ = int(diffwidth / 2)
+    #     if diffwidth % 2 == 0:
+    #         padwidth = ((diffwidth_, diffwidth_), (diffwidth_, diffwidth_), (0, 0))
+    #     else:
+    #         padwidth = ((diffwidth_, diffwidth_ + 1), (diffwidth_, diffwidth_ + 1), (0, 0))
+    #     im2 = np.lib.pad(im2, padwidth, 'constant', constant_values=(0, 0))
 
     # shift
-    shiftdis = (np.random.randint(-2, 3), np.random.randint(-2, 3), 0)
-    im2 = scipy.ndimage.shift(im2, shiftdis, cval=0)
+    shiftdis = (np.random.randint(-10, 10), np.random.randint(-10, 10), 0)
+    im2 = scipy.ndimage.shift(im, shiftdis, cval=0)
 
     # rotate
     im2 = scipy.ndimage.rotate(im2, np.random.randint(-15, 16), reshape=False)

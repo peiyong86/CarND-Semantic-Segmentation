@@ -120,17 +120,13 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
 
     total_i = 0
     for epoch in range(epochs):
-        loss_all = 0
-        n = 0
         for image, label in get_batches_fn(batch_size):
-            lr = start_learning_rate * np.power(decay_rate, float(n)/decay_steps)
+            lr = start_learning_rate * np.power(decay_rate, float(total_i)/decay_steps)
             feed_dict = {input_image: image, correct_label: label, keep_prob: 0.8, learning_rate: 0.001}
             loss,_ = sess.run([cross_entropy_loss, train_op], feed_dict=feed_dict)
-            loss_all += loss
-            n += 1
             total_i += 1
             if total_i%20 == 0:
-                print("global step {}, epoch {}, loss {}".format(total_i, epoch, loss_all/float(n)))
+                print("global step {}, epoch {}, lr {}, loss {}".format(total_i, epoch, lr, loss))
 
 tests.test_train_nn(train_nn)
 

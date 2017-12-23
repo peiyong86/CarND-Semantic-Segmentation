@@ -5,7 +5,9 @@ import helper
 import warnings
 from distutils.version import LooseVersion
 import project_tests as tests
-
+import scipy.ndimage
+from multiprocessing.dummy import Pool as ThreadPool
+import time
 
 # Check TensorFlow Version
 assert LooseVersion(tf.__version__) >= LooseVersion('1.0'), 'Please use TensorFlow version 1.0 or newer.  You are using {}'.format(tf.__version__)
@@ -17,6 +19,32 @@ if not tf.test.gpu_device_name():
 else:
     print('Default GPU Device: {}'.format(tf.test.gpu_device_name()))
 
+
+def jitter(im):
+    # rescale
+    scale = np.random.rand() * 0.1 + 0.9
+    im2 = scipy.ndimage.interpolation.zoom(im, (scale, scale, 1.0))
+    if im2.shape[0] > 32:
+        mid = im2.shape[0] / 2
+        im2 = im2[mid - 16:mid + 16, mid - 16:mid + 16, :]
+    elif im2.shape[0] < 32:
+        diffwidth = 32 - im2.shape[0]
+        diffwidth_ = int(diffwidth / 2)
+        if diffwidth % 2 == 0:
+            padwidth = ((diffwidth_, diffwidth_), (diffwidth_, diffwidth_), (0, 0))
+        else:
+            padwidth = ((diffwidth_, diffwidth_ + 1), (diffwidth_, diffwidth_ + 1), (0, 0))
+        im2 = np.lib.pad(im2, padwidth, 'constant', constant_values=(0, 0))
+
+    # shift
+    shiftdis = (np.random.randint(-2, 3), np.random.randint(-2, 3), 0)
+    im2 = scipy.ndimage.shift(im2, shiftdis, cval=0)
+
+    # rotate
+    im2 = scipy.ndimage.rotate(im2, np.random.randint(-15, 16), reshape=False)
+
+    return im2
+pool = ThreadPool(8)
 
 def load_vgg(sess, vgg_path):
     """
@@ -126,7 +154,8 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
         loss_all = 0
         n = 0
         for image, label in get_batches_fn(batch_size):
-            image = normalize(image)
+            # image = normalize(image)
+            image = pool.map(jitter, image)
             lr = start_learning_rate * np.power(decay_rate, float(n)/decay_steps)
             feed_dict = {input_image: image, correct_label: label, keep_prob: 0.8, learning_rate: 0.001}
             loss,_ = sess.run([cross_entropy_loss, train_op], feed_dict=feed_dict)

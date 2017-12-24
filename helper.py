@@ -57,6 +57,8 @@ def maybe_download_pretrained_vgg(data_dir):
         # Remove zip file to save space
         os.remove(os.path.join(vgg_path, vgg_filename))
 
+def normalize(data):
+    return (data - 128.)/ 128.
 
 def gen_batch_function(data_folder, image_shape):
     """
@@ -93,9 +95,11 @@ def gen_batch_function(data_folder, image_shape):
 
                 images.append(image)
                 gt_images.append(gt_image)
+            images = np.array(images)
+            gt_images = np.array(gt_images)
 
-
-            yield np.array(images), np.array(gt_images)
+            images = normalize(images)
+            yield images, gt_images
     return get_batches_fn
 
 

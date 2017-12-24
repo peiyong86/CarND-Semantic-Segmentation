@@ -84,7 +84,7 @@ def jitter(im):
     # im2 = scipy.ndimage.shift(im2, shiftdis, cval=0)
 
     # rotate
-    im2 = scipy.ndimage.rotate(im2, np.random.randint(-15, 16), reshape=False)
+    im2 = scipy.ndimage.rotate(im, np.random.randint(-15, 16), reshape=False)
 
     return im2
 
@@ -132,7 +132,7 @@ def gen_batch_function(data_folder, image_shape):
             images = np.array(images)
             gt_images = np.array(gt_images)
 
-            images = normalize(images)
+            # images = normalize(images)
             yield images, gt_images
     return get_batches_fn
 

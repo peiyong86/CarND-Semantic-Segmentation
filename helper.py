@@ -88,6 +88,7 @@ def jitter(im):
 
     return im2
 
+
 def gen_batch_function(data_folder, image_shape):
     """
     Generate function to create batches of training data
@@ -109,7 +110,7 @@ def gen_batch_function(data_folder, image_shape):
 
         random.shuffle(image_paths)
 
-        pool = ThreadPool(8)
+        # pool = ThreadPool(8)
 
         for batch_i in range(0, len(image_paths), batch_size):
             images = []
@@ -127,7 +128,7 @@ def gen_batch_function(data_folder, image_shape):
                 images.append(image)
                 gt_images.append(gt_image)
 
-            images = pool.map(jitter, images)
+            #images = pool.map(jitter, images)
 
             images = np.array(images)
             gt_images = np.array(gt_images)

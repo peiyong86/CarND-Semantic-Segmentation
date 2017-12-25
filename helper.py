@@ -59,35 +59,6 @@ def maybe_download_pretrained_vgg(data_dir):
         # Remove zip file to save space
         os.remove(os.path.join(vgg_path, vgg_filename))
 
-def normalize(data):
-    return (data - 128.)/ 128.
-
-
-def jitter(im):
-    # rescale
-    # scale = np.random.rand() * 0.1 + 0.9
-    # im2 = scipy.ndimage.interpolation.zoom(im, (scale, scale, 1.0))
-    # if im2.shape[0] > 32:
-    #     mid = im2.shape[0] / 2
-    #     im2 = im2[mid - 16:mid + 16, mid - 16:mid + 16, :]
-    # elif im2.shape[0] < 32:
-    #     diffwidth = 32 - im2.shape[0]
-    #     diffwidth_ = int(diffwidth / 2)
-    #     if diffwidth % 2 == 0:
-    #         padwidth = ((diffwidth_, diffwidth_), (diffwidth_, diffwidth_), (0, 0))
-    #     else:
-    #         padwidth = ((diffwidth_, diffwidth_ + 1), (diffwidth_, diffwidth_ + 1), (0, 0))
-    #     im2 = np.lib.pad(im2, padwidth, 'constant', constant_values=(0, 0))
-
-    # # shift
-    # shiftdis = (np.random.randint(-2, 3), np.random.randint(-2, 3), 0)
-    # im2 = scipy.ndimage.shift(im2, shiftdis, cval=0)
-
-    # rotate
-    im2 = scipy.ndimage.rotate(im, np.random.randint(-15, 16), reshape=False)
-
-    return im2
-
 
 def gen_batch_function(data_folder, image_shape):
     """
@@ -110,8 +81,6 @@ def gen_batch_function(data_folder, image_shape):
 
         random.shuffle(image_paths)
 
-        # pool = ThreadPool(8)
-
         for batch_i in range(0, len(image_paths), batch_size):
             images = []
             gt_images = []
@@ -128,12 +97,8 @@ def gen_batch_function(data_folder, image_shape):
                 images.append(image)
                 gt_images.append(gt_image)
 
-            #images = pool.map(jitter, images)
-
             images = np.array(images)
             gt_images = np.array(gt_images)
-
-            # images = normalize(images)
             yield images, gt_images
     return get_batches_fn
 

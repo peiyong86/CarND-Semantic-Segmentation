@@ -102,7 +102,7 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     reg_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
     total_loss = loss + sum(reg_losses)
     train_op = tf.train.AdamOptimizer(learning_rate).minimize(total_loss)
-    return logits, train_op, loss
+    return logits, train_op, total_loss
 tests.test_optimize(optimize)
 
 

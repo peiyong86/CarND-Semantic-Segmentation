@@ -101,7 +101,8 @@ def optimize(nn_last_layer, correct_label, learning_rate, num_classes):
     loss = tf.reduce_mean(cross_entropy)
     reg_losses = tf.get_collection(tf.GraphKeys.REGULARIZATION_LOSSES)
     total_loss = loss + sum(reg_losses)
-    train_op = tf.train.AdamOptimizer(learning_rate).minimize(total_loss)
+    train_op = tf.train.GradientDescentOptimizer(learning_rate).minimize(total_loss)
+    #train_op = tf.train.AdamOptimizer(learning_rate).minimize(total_loss)
     return logits, train_op, total_loss
 tests.test_optimize(optimize)
 
@@ -122,9 +123,9 @@ def train_nn(sess, epochs, batch_size, get_batches_fn, train_op, cross_entropy_l
     :param learning_rate: TF Placeholder for learning rate
     """
     # TODO: Implement function
-    start_learning_rate = 0.001
-    decay_steps = 100
-    decay_rate = 0.7
+    start_learning_rate = 0.0001
+    decay_steps = 50
+    decay_rate = 1.0
 
     total_i = 0
     for epoch in range(epochs):
@@ -153,7 +154,7 @@ def run():
     # You'll need a GPU with at least 10 teraFLOPS to train on.
     #  https://www.cityscapes-dataset.com/
     batch_size = 4
-    epochs = 30
+    epochs = 20
 
     learning_rate = tf.placeholder(tf.float32, shape=())
     correct_label = tf.placeholder(tf.float32, shape=(None, image_shape[0], image_shape[1], num_classes))
